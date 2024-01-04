@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
+import os
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), 'website', 'templates'))
 
 todos = []
 
@@ -34,4 +35,4 @@ def delete(index):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=3000,host='0.0.0.0')
