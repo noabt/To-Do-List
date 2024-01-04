@@ -1,24 +1,77 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Todo List</title>
-  </head>
-  <body>
-    <h1>Todo List</h1>
-    <ul>
-      {% for todo in todos %}
-        <li>
-          <input type="checkbox" name="done" {% if todo['done'] %}checked{% endif %} onchange="this.form.submit()">
-          <span {% if todo['done'] %}style="text-decoration: line-through"{% endif %}>{{ todo['task'] }}</span>
-          <a href="{{ url_for('edit', index=loop.index0) }}">edit</a>
-          <a href="{{ url_for('delete', index=loop.index0) }}">delete</a>
-        </li>
-      {% endfor %}
-    </ul>
-    <form action="{{ url_for('add') }}" method="post">
-      <input type="text" name="todo">
-      <button type="submit">Add</button>
-    </form>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Todo List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      text-align: center;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    span {
+      flex-grow: 1;
+    }
+    span.completed {
+      text-decoration: line-through;
+    }
+    a {
+      margin-left: 10px;
+      text-decoration: none;
+      color: #3498db;
+    }
+    form {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input[type="text"] {
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Todo List</h1>
+  <ul>
+    {% for todo in todos %}
+      <li>
+        <input type="checkbox" name="done" {% if todo['done'] %}checked{% endif %} onchange="this.form.submit()">
+        <span {% if todo['done'] %}class="completed"{% endif %}>{{ todo['task'] }}</span>
+        <a href="{{ url_for('edit', index=loop.index0) }}">edit</a>
+        <a href="{{ url_for('delete', index=loop.index0) }}">delete</a>
+      </li>
+    {% endfor %}
+  </ul>
+  <form action="{{ url_for('add') }}" method="post">
+    <input type="text" name="todo" placeholder="New Task">
+    <button type="submit">Add</button>
+  </form>
+</body>
 </html>
