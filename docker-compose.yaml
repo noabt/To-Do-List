@@ -7,7 +7,7 @@ networks:
 version: '3'
 services:
   web:
-    image: noabt/todo-list:0.0
+    image: todo-image:latest
     ports:
       - "3000:3000"
     expose:
@@ -15,4 +15,3 @@ services:
     networks:
       my_custom_network:
         ipv4_address: 172.211.1.2
-    
