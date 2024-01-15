@@ -33,7 +33,7 @@ jobs:
         run: |
           COMMIT_SHORT_SHA=$(git rev-parse --short=7 HEAD)
           docker build -t todo-image:${COMMIT_SHORT_SHA} .
-          yq eval '.services.web.image = "todo-image:latest"' -i docker-compose.yaml
+          yq eval '.services.web.image = "todo-image:${COMMIT_SHORT_SHA}"' -i docker-compose.yaml
 
       - name: set git config
         run: |
