@@ -7,7 +7,7 @@ networks:
 version: '3'
 services:
   web:
-    image: todo-image:${COMMIT_SHORT_SHA}
+    image: todo-image:test
     ports:
       - "3000:3000"
     expose:
