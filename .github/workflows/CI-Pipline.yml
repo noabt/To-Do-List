@@ -1,0 +1,90 @@
+name: CI Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+            
+      - name: Get Commit SHA
+        id: commit_sha
+        run: echo "::set-output name=sha::$(git rev-parse HEAD)"
+
+      - name: Build Docker Image
+        run: |
+          docker build -t todo-image:latest .
+          yq eval '.services.web.image = "todo-image:latest"' -i docker-compose.yaml
+
+      - name: set git config
+        run: |
+          git config --global user.email "noabt123@gmail.com"
+          git config --global user.name "noa"
+
+      - name: stage changed files
+        run: |
+          git add .
+          git commit -m "Auto updating docker-compose.yaml"
+          git pull origin main
+          git push origin HEAD:main
+
+      - name: run docker compose for connection test
+        run: |
+           docker-compose up -d
+           sleep 20
+           docker-compose up -d
+           sleep 20
+
+      - name: Check Response Code
+        run: |
+          APP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000)
+          if [ "$APP_RESPONSE" -eq 302 ]; then
+            echo "App is running and returning a 302 response code."
+          else
+            echo "Connection to the app failed. Response code: $APP_RESPONSE"
+            exit 1
+          fi
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.2.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Push Docker Image
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          COMMIT_SHORT_SHA=$(git rev-parse --short=7 HEAD)
+          docker build -t noabt/todo-list:${BRANCH_NAME}-${COMMIT_SHORT_SHA} .
+          docker push noabt/todo-list:${BRANCH_NAME}-${COMMIT_SHORT_SHA}
+
+      - name: Update values.yaml
+        run: |
+          export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          export COMMIT_SHORT_SHA=$(git rev-parse --short HEAD)
+          yq eval '.image.tag = env(BRANCH_NAME) + "-" + env(COMMIT_SHORT_SHA)' -i todo-list/values.yaml
+
+      - name: update the changes
+        run: |
+          git add .
+          git commit -m "Auto updating values.yaml"
+          git pull origin main
+          git push origin HEAD:main
