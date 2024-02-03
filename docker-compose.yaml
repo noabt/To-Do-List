@@ -7,7 +7,7 @@ networks:
 version: '3'
 services:
   web:
-    image: todo-image:126b29a
+    image: todo-image:33a4ede
     ports:
       - "3000:3000"
     expose:
